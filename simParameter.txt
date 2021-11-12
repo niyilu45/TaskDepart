@@ -1,0 +1,18 @@
+TaskBegin
+    -Channel [1:-0.5:2] \
+    -SNR [-4.7:-0.5:0] \
+TaskEnd
+%TaskBegin
+    %-Channel [2,2]
+    %-SNR [-4.8:-0.5:0]
+%TaskEnd
+
+%TaskBegin
+    %-Channel [1,2]
+    %-SNR [-4.7:-0.5:0]
+%TaskEnd
+
+CommentBegin
+fagh
+iafae
+CommentEnd
