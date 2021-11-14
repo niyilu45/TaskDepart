@@ -7,163 +7,269 @@
 #     Do not deal with the second [str] in this block, go to 2)
 # 6) Depart blocks to files.
 
+MAXTOP=100 # max number of the stack
+declare TOP=0 # top of the stack
+STACKTEMP= # for pop temp
+declare -a STACK
+
+function Push() {
+    if [ -z "$1" ]; then
+        return
+    fi
+    while [ $# != 0 ] ; do
+        if [ "$TOP" = $MAXTOP ]; then
+            echo "Full of stack, push failed!"
+            return
+        fi
+        let TOP++
+        STACK[$TOP]="$1"
+        #echo "--------------- Push: ${STACK[$TOP]}"
+        shift # input paramters left shift, $# --
+    done
+    return
+}
+function Pop() {
+    STACKTEMP= # clear this temp.
+    if [ "$TOP" = "0" ]; then
+        echo "empty of the stack, pop failed!"
+        return
+    fi
+    STACKTEMP=${STACK[$TOP]}
+    unset STACK[$TOP]
+    let TOP--
+    return
+}
+function ShowStack() {
+    echo "@@ -------------STACK------------"
+    local i
+    for i in "${STACK[@]}"; do
+        echo "@@ ""$i"
+    done
+    echo "@@ stack size = $TOP"
+    echo "@@ ------------------------------"
+    echo
+}
+function PrintStackToFile() {
+    local file=$1
+    local i
+    for i in "${STACK[@]}"; do
+        echo $i >> $file
+    done
+    echo >> $file
+}
+
 function DelNoneUseLines(){
-    tmpFile=$1
-    commentStartFlag=$2
-    commentEndFlag=$3
+    local tmpFile=$1
+    local commentStartFlag=$2
+    local commentEndFlag=$3
     # delete lines begin with % \s* means 0 to n blank
     sed -i '/^\s*\%/d' $tmpFile
     # delete lines in CommentBegin and CommentEnd
     sed -i "/${commentStartFlag}/,/${commentEndFlag}/d" $tmpFile
 }
-function GetDataSplitColon(){
-    str=$1
-    idx=$2
-    OLDIFS=$IFS
-    IFS=':'
-    array=($str)
-    IFS=$OLDIFS
-    size=0
-    first=${array[0]}
-    intvl=${array[1]}
-    configNum=${#array[*]}
-    data=`echo $first $intvl $idx | awk '{printf "%0.1f\n", $1+($2*$3)}'`
-    echo $data
-}
-function CalcNumSplitColon(){
-    str=$1
-    OLDIFS=$IFS
-    IFS=':'
-    array=($str)
-    IFS=$OLDIFS
-    size=0
-    first=${array[0]}
-    intvl=${array[1]}
-    last=${array[2]}
-    configNum=${#array[*]}
-    dataNum=0
-    whileFlag=1
-    isIntvlPositive=`echo $intvl | awk '{printf($1>=0)?"1":"0"}'`
-    if [ $configNum -ne 3 ]; then
-        dataNum=0
-    elif [ $isIntvlPositive -eq 1 ]; then
-        until [ $whileFlag -ne 1 ] ; do
-            let dataNum++
-            first=`echo ${first} ${intvl} | awk '{printf "%0.1f\n", $1+$2}'`
-            whileFlag=`echo $first $last | awk '{printf($1<=$2)?"1":"0"}'`
-        done
-    else
-        until [ $whileFlag -ne 1 ] ; do
-            let dataNum++
-            first=`echo ${first} ${intvl} | awk '{printf "%0.1f\n", $1+$2}'`
-            whileFlag=`echo $first $last | awk '{printf($1>=$2)?"1":"0"}'`
-        done
-    fi
-    echo $dataNum
-}
-function GetDataSplitComma(){
-    str=$1
-    OLDIFS=$IFS
-    IFS=','
-    array=($str)
-    IFS=$OLDIFS
-    echo ${array[$2]}
-}
-function CalcNumSplitComma(){
-    str=$1
-    OLDIFS=$IFS
-    IFS=','
-    array=($str)
-    IFS=$OLDIFS
-    echo ${#array[*]}
-}
-function GetStrInBrackets(){
-    str=${str#*[}
-    str=${str%]*}
+function GetStrInBrace(){
+    local str=$1
+    str=${str#*\{} && str=${str%\}*}
     echo $str
 }
-function IsExistColon(){
-    str=$1
-    colon=':'
-    if [[ $str == *$colon* ]]
-    then
-        echo 1
+function ReplaceBrace() {
+    local oriStr=$1
+    local valToReplace=$2
+    local outStr=""
+    outStr=`echo ${oriStr/\{*\}/$2}`
+    echo $outStr
+}
+function GetStrInBrackets(){
+    local str=$1
+    str=${str#*[} && str=${str%]*}
+    echo $str
+}
+function ReplaceBracket() {
+    local oriStr=$1
+    local valToReplace=$2
+    local outStr=""
+    outStr=`echo ${oriStr/\[*\]/$2}`
+    echo $outStr
+}
+function GetDataSplit(){
+    local str=$1
+    local out= # set empty
+    if [ `IsExistColon "$str"` -eq 1 ]; then
+        out=`GetDataSplitColon "$str"`
     else
-        echo 0
+        out=`GetDataSplitComma "$str"`
     fi
+    echo "$out"
+}
+function GetDataSplitColon(){
+    local str=$1
+    OLDIFS=$IFS && IFS=':'
+    local array=($str)
+    IFS=$OLDIFS
+    local first=${array[0]}
+    local intvl=${array[1]}
+    local last=${array[2]}
+    if [ ${#array[*]} -ne 3 ]; then
+        echo "[Error]: $str should have 3 members!"
+        exit
+    fi
+    local data=`seq $first $intvl $last`
+    echo ${data[@]}
+}
+function GetDataSplitComma(){
+    local str=$1
+    OLDIFS=$IFS && IFS=','
+    local array=($str)
+    IFS=$OLDIFS
+    echo ${array[@]}
+}
+function GetDataSplitWave(){
+    local str=$1
+    OLDIFS=$IFS && IFS='~'
+    local array=($str)
+    IFS=$OLDIFS
+    echo ${array[@]}
+}
+function IsExistColon(){
+    [[ "$1" == *:* ]] && echo 1 && return
+    echo 0
+}
+function IsExistBrace() {
+    [[ "$1" == *\{* ]] && echo 1 && return
+    echo 0
+}
+function IsExistBracket() {
+    [[ "$1" == *\[* ]] && echo 1 && return
+    echo 0
+}
+function DepartTask() {
+    local varLines="$1"
+    local file="$2"
+    if [ ! "$varLines" ]; then
+        # you can do some function here.
+        PrintStackToFile $file
+        return
+    fi
+    local curLine=`echo "$varLines" | sed -n '1p'`
+    local otherLines=`echo "$varLines" | sed -n '2,$p'`
+    #echo "curLine: $curLine"
+    if [[ `IsExistBracket "$curLine"` -eq 1 ]]; then
+        local strInBrack=`GetStrInBrackets "$curLine"`
+        local dataInBrack=`GetDataSplit "$strInBrack"`
+        local i
+        dataInBrack=($dataInBrack)
+        for i in `seq 0 $[${#dataInBrack[*]}-1]`; do
+            modifiedLine=`ReplaceBracket "$curLine" ${dataInBrack[$i]} `
+            Push "$modifiedLine"
+            DepartTask "$otherLines" $file
+            Pop
+        done
+    else
+        Push "$curLine"
+        DepartTask "$otherLines" $file
+        Pop
+    fi
+    return
+}
+function DepartBind() {
+    local varLines="$1"
+    local file="$2"
+    local lineCnt
+    local bindCnt
+    local bindStartFlag=BindBegin
+    local bindEndFlag=BindEnd
+    local beLines
+    if [ ! "$varLines" ]; then
+        # you can do some function here.
+        PrintStackToFile $file
+        return
+    fi
+    local solveLine= # set empty
+    local curLine=`echo "$varLines" | sed -n '1p'`
+    local otherLines=`echo "$varLines" | sed -n '2,$p'`
+    if [[ "$curLine" == *${bindStartFlag}* ]]; then
+        beLines=`echo "$otherLines" | cat -n | grep $bindEndFlag | awk '{print $1}'`
+        beLines=($beLines)
+        # check bind number
+        local bindNum=`echo "$otherLines" | sed -n '1p' | grep -o '~' | wc -l` && let bindNum++
+        for (( lineCnt=1; lineCnt<${beLines[0]}; lineCnt++ )); do
+            solveLine=`echo "$otherLines" | sed -n "${lineCnt}p"`
+            if [ `IsExistBrace "$solveLine"` -ne 1 ]; then
+                echo "[Error] Bind areas should have brace!"
+                exit
+            fi
+            local bindNumTmp=`echo "$solveLine" | grep -o '~' | wc -l` && let bindNumTmp++
+            if [ $bindNum -ne $bindNumTmp ]; then
+                echo "[Error] Bind number shoud be same!"
+                exit
+            fi
+        done
+        for (( bindCnt=0; bindCnt<$bindNum; bindCnt++ )); do
+            for (( lineCnt=1; lineCnt<${beLines[0]}; lineCnt++ )); do
+                solveLine=`echo "$otherLines" | sed -n "${lineCnt}p"`
+                local strInBrace=`GetStrInBrace "$solveLine"`
+                local array=`GetDataSplitWave "$strInBrace"`
+                array=($array)
+                local strTmp=`ReplaceBrace "$solveLine" "${array[$bindCnt]}"`
+                Push "$strTmp"
+            done
+            local restLines=`echo "$otherLines" | sed -n "$[${beLines[0]}+1],$ p"`
+            DepartBind "$restLines" $file
+            for (( lineCnt=1; lineCnt<${beLines[0]}; lineCnt++ )); do
+                Pop
+            done
+        done
+    else
+        Push "$curLine"
+        DepartBind "$otherLines" $file
+        Pop
+    fi
+    return
 }
 
 ###############################
 # Main
 tmpFile="simParameterTmp.txt"
+deBindFile="simParameterDeBind.txt"
 taskStartFlag=TaskBegin
 taskEndFlag=TaskEnd
 commentStartFlag=CommentBegin
 commentEndFlag=CommentEnd
+echo > $deBindFile
 \cp -f simParameter.txt $tmpFile
 
 DelNoneUseLines $tmpFile $commentStartFlag $commentEndFlag
+# 1) choose the tasks.
+tbLines=`cat -n $tmpFile | grep $taskStartFlag | awk '{print $1}'`
+tbLines=($tbLines)
+teLines=`cat -n $tmpFile | grep $taskEndFlag | awk '{print $1}'`
+teLines=($teLines)
+tbNum=${#tbLines[*]}
+teNum=${#teLines[*]}
+if [ $tbNum -ne $teNum ]; then
+    echo "[Error] Numbers of TaskBegin and TaskEnd are not same!"
+    exit
+fi
 
-mayExistBrackInTask=1
-while [ $mayExistBrackInTask -eq 1 ] ; do
-    tbLines=`cat -n $tmpFile | grep $taskStartFlag | awk '{print $1}'`
-    tbLines=($tbLines)
-    teLines=`cat -n $tmpFile | grep $taskEndFlag | awk '{print $1}'`
-    teLines=($teLines)
-    tbNum=${#tbLines[*]}
-    teNum=${#teLines[*]}
-    if [ $tbNum -ne $teNum ]; then
-        echo "Numbers of TaskBegin and TaskEnd are not same!"
-        exit
-    fi
-    i=0
-    mayExistBrackInTask=0
-    while [ $i -lt $tbNum ] ; do
-        # find the bracket in line 1 to line teLines.
-        bkLines=`cat -n $tmpFile | head -n ${teLines[$i]}| grep '\[' | awk '{print $1}'`
-        bkLines=($bkLines) # depart by blank
-        bkNum=${#bkLines[*]}
-        if [ $bkNum -ne 0 ]; then
-            # Copy the task and replace content in brackets.
-            bkSolveLine=${bkLines[0]} # Only solve one line, others waits for subsequent loop.
-            # Parse data in bracket
-            str=`sed -n "$bkSolveLine p" $tmpFile`
-            strInBrack=`GetStrInBrackets "$str"`
-            # Get the num array in brackets
-            isExistColon=`IsExistColon "$strInBrack"`
-            if [ $isExistColon -eq 1 ]; then
-                dataNumInBrack=`CalcNumSplitColon $strInBrack`
-                for ((k=0; k<dataNumInBrack; k++)) do
-                    arr[$k]=`GetDataSplitColon "$strInBrack" $k`
-                done
-            else
-                dataNumInBrack=`CalcNumSplitComma "$strInBrack" `
-                for ((k=0; k<dataNumInBrack; k++)) do
-                    arr[$k]=`GetDataSplitComma "$strInBrack" $k`
-                done
-            fi
-            # Copy the Task
-            for ((j=0; j<dataNumInBrack-1; j++)) do
-                sed -rni "p;${tbLines[$i]},${teLines[$i]}H;${teLines[$i]}{g;p}" $tmpFile
-            done
-            # Replace the data in bracket lins of copied Tasks.
-            if [ $dataNumInBrack -eq 0 ]; then
-                echo "error dataNumInBracket = 0"
-                exit
-            fi
-            for ((j=0; j<dataNumInBrack; j++)) do
-                let tmpLine=teLines[i]-tbLines[i]+1+1
-                let tmpLine=tmpLine*j+bkSolveLine
-                sed -i "${tmpLine}s/\[.*\]/${arr[$j]}/g" $tmpFile
-            done
-
-            mayExistBrackInTask=1
-            let i=0 # refind from the begin of files.
-            break
-        fi
-        let i++
-    done
+for (( i=0; i<$tbNum; i++ )); do
+    taskStr=`sed -n "${tbLines[$i]},${teLines[$i]}p" $tmpFile`
+    DepartBind "$taskStr" $deBindFile
 done
+echo "------------this is debind file"
+cat $deBindFile
+
+echo > $tmpFile
+tbLines=`cat -n $deBindFile | grep $taskStartFlag | awk '{print $1}'`
+tbLines=($tbLines)
+teLines=`cat -n $deBindFile | grep $taskEndFlag | awk '{print $1}'`
+teLines=($teLines)
+tbNum=${#tbLines[*]}
+teNum=${#teLines[*]}
+for (( i=0; i<$tbNum; i++ )); do
+    taskStr=`sed -n "$[${tbLines[$i]}+1],$[${teLines[$i]}-1]p" $deBindFile`
+    DepartTask "$taskStr" $tmpFile
+done
+
 echo "----End File----"
 cat $tmpFile
 

@@ -1,6 +1,141 @@
-TaskBegin
-    -Channel 1.0 \
-    -SNR -4.7 \
-TaskEnd
 
+-Noise 1 \
+-CEO 1 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 1 \
+-CEO 2 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 1 \
+-CEO 3 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 2 \
+-CEO 1 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 2 \
+-CEO 2 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 2 \
+-CEO 3 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 3 \
+-CEO 1 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 3 \
+-CEO 2 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 3 \
+-CEO 3 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 1 \
+-CEO 1 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 1 \
+-CEO 2 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 1 \
+-CEO 3 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 2 \
+-CEO 1 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 2 \
+-CEO 2 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 2 \
+-CEO 3 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 3 \
+-CEO 1 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 3 \
+-CEO 2 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 3 \
+-CEO 3 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
+
+-Noise 2 \
+-CEO 9 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 5 \
+
+-Noise 2 \
+-CEO 9 \
+-SFO 11
+-SFO 21
+-aa 1 \
+-bb 1 \
 

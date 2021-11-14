@@ -1,7 +1,23 @@
 TaskBegin
-    -Channel [1:-0.5:2] \
-    -SNR [-4.7:-0.5:0] \
+    BindBegin
+    -Noise {[1,2,3]~[2]} \
+    -CEO {[1,2,3]~[9]} \
+    BindEnd
+    -SFO 11
+    -SFO 21
+    BindBegin
+    -aa {[1]~[1]} \
+    -bb {[5]~[1]} \
+    BindEnd
 TaskEnd
+CommentBegin
+TaskBegin
+    -SFO 11
+    -Noise [1,2,3] \
+    -Channel [1:0.5:2] \
+    -SNR [-4.7:0.5:0] \
+TaskEnd
+CommentEnd
 %TaskBegin
     %-Channel [2,2]
     %-SNR [-4.8:-0.5:0]

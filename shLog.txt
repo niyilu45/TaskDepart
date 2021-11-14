@@ -1,0 +1,201 @@
++ MAXTOP=5
++ declare TOP=0
++ STACKTEMP=
++ declare -a STACK
++ tmpFile=simParameterTmp.txt
++ taskStartFlag=TaskBegin
++ taskEndFlag=TaskEnd
++ commentStartFlag=CommentBegin
++ commentEndFlag=CommentEnd
++ cp -f simParameter.txt simParameterTmp.txt
++ DelNoneUseLines simParameterTmp.txt CommentBegin CommentEnd
++ local tmpFile=simParameterTmp.txt
++ local commentStartFlag=CommentBegin
++ local commentEndFlag=CommentEnd
++ sed -i '/^\s*\%/d' simParameterTmp.txt
++ sed -i /CommentBegin/,/CommentEnd/d simParameterTmp.txt
+++ sed -n 2,4p simParameterTmp.txt
++ var='    -SFO 11
+TaskEnd
+TaskBegin'
++ echo Start:
++ DepartTask '    -SFO 11
+TaskEnd
+TaskBegin'
++ local 'varLines=    -SFO 11
+TaskEnd
+TaskBegin'
++ '[' '!' '    -SFO 11
+TaskEnd
+TaskBegin' ']'
+++ echo '    -SFO 11
+TaskEnd
+TaskBegin'
+++ sed -n 1p
++ local 'curLine=    -SFO 11'
+++ echo '    -SFO 11
+TaskEnd
+TaskBegin'
+++ sed -n '2,$p'
++ local 'otherLines=TaskEnd
+TaskBegin'
++ echo 'curLine:     -SFO 11'
+++ IsExistBracket '    -SFO 11'
+++ [[     -SFO 11 == *\[* ]]
+++ echo 0
++ '[' 0 -eq 1 ']'
++ Push '    -SFO 11'
++ '[' -z '    -SFO 11' ']'
++ '[' 1 '!=' 0 ']'
++ '[' 0 = 5 ']'
++ let TOP++
++ STACK[$TOP]='    -SFO 11'
++ shift
++ '[' 0 '!=' 0 ']'
++ return
++ DepartTask 'TaskEnd
+TaskBegin'
++ local 'varLines=TaskEnd
+TaskBegin'
++ '[' '!' 'TaskEnd
+TaskBegin' ']'
+++ echo 'TaskEnd
+TaskBegin'
+++ sed -n 1p
++ local curLine=TaskEnd
+++ echo 'TaskEnd
+TaskBegin'
+++ sed -n '2,$p'
++ local otherLines=TaskBegin
++ echo 'curLine: TaskEnd'
+++ IsExistBracket TaskEnd
+++ [[ TaskEnd == *\[* ]]
+++ echo 0
++ '[' 0 -eq 1 ']'
++ Push TaskEnd
++ '[' -z TaskEnd ']'
++ '[' 1 '!=' 0 ']'
++ '[' 1 = 5 ']'
++ let TOP++
++ STACK[$TOP]=TaskEnd
++ shift
++ '[' 0 '!=' 0 ']'
++ return
++ DepartTask TaskBegin
++ local varLines=TaskBegin
++ '[' '!' TaskBegin ']'
+++ echo TaskBegin
+++ sed -n 1p
++ local curLine=TaskBegin
+++ echo TaskBegin
+++ sed -n '2,$p'
++ local otherLines=
++ echo 'curLine: TaskBegin'
+++ IsExistBracket TaskBegin
+++ [[ TaskBegin == *\[* ]]
+++ echo 0
++ '[' 0 -eq 1 ']'
++ Push TaskBegin
++ '[' -z TaskBegin ']'
++ '[' 1 '!=' 0 ']'
++ '[' 2 = 5 ']'
++ let TOP++
++ STACK[$TOP]=TaskBegin
++ shift
++ '[' 0 '!=' 0 ']'
++ return
++ DepartTask ''
++ local varLines=
++ '[' '!' '' ']'
++ ShowStack
++ echo '@@ -------------STACK------------'
++ for i in "${STACK[@]}"
++ echo '@@     -SFO 11'
++ for i in "${STACK[@]}"
++ echo '@@ TaskEnd'
++ for i in "${STACK[@]}"
++ echo '@@ TaskBegin'
++ echo '@@ stack size = 3'
++ echo '@@ ------------------------------'
++ echo
++ return
++ Pop
++ STACKTEMP=
++ '[' 3 = 0 ']'
++ STACKTEMP=TaskBegin
++ unset 'STACK[3]'
++ let TOP--
++ return
++ return
++ Pop
++ STACKTEMP=
++ '[' 2 = 0 ']'
++ STACKTEMP=TaskEnd
++ unset 'STACK[2]'
++ let TOP--
++ return
++ return
++ Pop
++ STACKTEMP=
++ '[' 1 = 0 ']'
++ STACKTEMP='    -SFO 11'
++ unset 'STACK[1]'
++ let TOP--
++ return
++ return
++ echo End:
++ exit
+Start:
+curLine:     -SFO 11
+curLine: TaskEnd
+curLine: TaskBegin
+@@ -------------STACK------------
+@@     -SFO 11
+@@ TaskEnd
+@@ TaskBegin
+@@ stack size = 3
+@@ ------------------------------
+
+End:
+Start:
+curLine:     -SFO 11
+curLine: TaskEnd
+curLine: TaskBegin
+@@ -------------STACK------------
+@@     -SFO 11
+@@ TaskEnd
+@@ TaskBegin
+@@ stack size = 3
+@@ ------------------------------
+
+End:
+Start:
+curLine:     -SFO 11
+curLine: TaskEnd
+curLine: TaskBegin
+@@ -------------STACK------------
+@@     -SFO 11
+@@ TaskEnd
+@@ TaskBegin
+@@ stack size = 3
+@@ ------------------------------
+
+Start:
+curLine:     -SFO 11
+curLine: TaskEnd
+@@ -------------STACK------------
+@@     -SFO 11
+@@ TaskEnd
+@@ stack size = 2
+@@ ------------------------------
+
+Start:
+curLine:     -SFO 11
+curLine: TaskEnd
+@@ -------------STACK------------
+@@     -SFO 11
+@@ TaskEnd
+@@ stack size = 2
+@@ ------------------------------
+
+End:
